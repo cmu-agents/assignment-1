@@ -1,0 +1,12 @@
+.env
+.private/
+
+__pycache__/
+*.egg-info/
+.venv/
+.pytest_cache/
+
+data/*
+!data/README.md
+!data/.gitkeep
+.env

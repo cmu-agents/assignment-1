@@ -1,0 +1,3 @@
+[submodule "chess_app"]
+	path = chess_app
+	url = https://github.com/cmu-agents/chess-app.git

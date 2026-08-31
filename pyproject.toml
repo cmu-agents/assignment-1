@@ -1,0 +1,39 @@
+[project]
+name = "assignment"
+version = "0.1.0"
+description = "Assignment 1 scaffold"
+requires-python = ">=3.11"
+dependencies = [
+    "httpx>=0.28.0",
+    "jinja2>=3.1.6",
+    "modal>=1.5.3",
+    "openai>=2.52.0",
+    "python-dotenv>=1.2.2",
+    "pyyaml>=6.0",
+    "swe-rex[modal]",
+    "tqdm>=4.70.0",
+]
+
+[dependency-groups]
+dev = ["pytest>=8.0"]
+
+[project.scripts]
+assignment-chess-modal = "assignment.chess_sandbox:main"
+assignment-code-agent = "assignment.cli:run_code_agent"
+assignment-doctor = "assignment.doctor:main"
+assignment-play-chess = "assignment.cli:run_chess_agent"
+assignment-swebench-agent = "assignment.cli:run_swebench_agent"
+
+[tool.pytest.ini_options]
+markers = ["modal: spins up a real Modal sandbox (slow, billable)"]
+addopts = "-m 'not modal'"
+# The chess_app submodule ships its own suite, which runs in the testbed against
+# the installed package. Collecting it here would fail and is not this repo's job.
+testpaths = ["tests"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/assignment"]
