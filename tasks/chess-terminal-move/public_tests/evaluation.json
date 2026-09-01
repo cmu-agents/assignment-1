@@ -1,0 +1,19 @@
+{
+  "task_id": "chess-terminal-move",
+  "test_patch": "test_patch.diff",
+  "test_cmd": "python -m pytest -rA tests/",
+  "fail_to_pass": [
+    "tests/test_chess_server.py::test_checkmating_move_returns_final_state_without_engine_reply"
+  ],
+  "pass_to_pass": [
+    "tests/test_chess_game.py::test_initial_state_is_standard_white_position",
+    "tests/test_chess_game.py::test_human_move_is_followed_by_legal_engine_reply",
+    "tests/test_chess_game.py::test_illegal_move_does_not_change_game",
+    "tests/test_chess_game.py::test_reset_restores_initial_position",
+    "tests/test_chess_game.py::test_checkmate_is_immediately_reported_as_game_over",
+    "tests/test_chess_server.py::test_browser_entry_point_is_served",
+    "tests/test_chess_server.py::test_state_and_move_api_share_one_game",
+    "tests/test_chess_server.py::test_illegal_move_returns_a_useful_error",
+    "tests/test_chess_server.py::test_reset_endpoint_starts_a_new_game"
+  ]
+}

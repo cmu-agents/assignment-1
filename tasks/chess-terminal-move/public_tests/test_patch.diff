@@ -1,0 +1,19 @@
+diff --git a/tests/test_chess_server.py b/tests/test_chess_server.py
+--- a/tests/test_chess_server.py
++++ b/tests/test_chess_server.py
+@@ -47,2 +47,15 @@ def test_reset_endpoint_starts_a_new_game():
+     assert reset.status_code == 200
+     assert reset.json()["history"] == []
++
++
++def test_checkmating_move_returns_final_state_without_engine_reply():
++    game = ChessGame()
++    game._board.set_fen("7k/5Q2/6K1/8/8/8/8/8 w - - 0 1")
++
++    with TestClient(create_app(game), raise_server_exceptions=False) as client:
++        response = client.post("/api/move", json={"move": "f7g7"})
++
++    assert response.status_code == 200
++    assert response.json()["game_over"] is True
++    assert response.json()["status"] == "White wins"
++    assert response.json()["engine_move"] is None
