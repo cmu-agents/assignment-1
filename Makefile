@@ -107,16 +107,3 @@ run-obs-gpt-oss-legal:
 
 run-chess-modal:
 	uv run assignment-chess-modal --task $(TASK) --sandbox-timeout $(CHESS_TIMEOUT) $(if $(wildcard $(PATCH)),--patch $(PATCH),)
-
-# Instructor-only targets. PRIVATE_EVAL points at files that are never shipped
-# in the student repository.
-instructor-eval-base:
-	uv run python scripts/evaluate.py --task $(TASK) --evaluation $(PRIVATE_EVAL) -v
-
-instructor-eval-gold:
-	uv run python scripts/evaluate.py --task $(TASK) --evaluation $(PRIVATE_EVAL) \
-		--patch $(PRIVATE_EVAL)/gold_patch.diff -v
-
-instructor-eval-patch:
-	uv run python scripts/evaluate.py --task $(TASK) --evaluation $(PRIVATE_EVAL) \
-		--patch $(PATCH) -v

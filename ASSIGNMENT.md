@@ -20,43 +20,6 @@ buggy chess app -> CodeAgent -> fix.patch -> repaired chess server
                                     ChessAgent tools
 ```
 
-<!-- The target applications run in Modal. Your agents and their OpenAI-compatible
-model client run locally. `run_python` is the exception: model-written Python
-runs inside the chess sandbox, next to the server. -->
-
-<!-- ## Implementation checklist
-
-Every student TODO is listed here. Search for the matching `TODO(...)` comment
-for the detailed contract.
-
-| Part | File | Implement |
-|---|---|---|
-| 1 | `src/assignment/agent/base.py` | `Agent.build_prompt`, the ReAct portion of `Agent.run` |
-| 1 | `src/assignment/agent/code_agent.py` | `CodeAgent.execute_tool_calls` |
-| 2 | `src/assignment/agent/base.py` | `COMPACTION_SYSTEM_PROMPT`, `Agent.compact_context`, and the call to `maybe_compact_context` in the loop |
-| 3 | `src/assignment/agent/tools.py` | `PLAY_MOVE_TOOL`, `SIMULATE_MOVE_TOOL`, `RUN_PYTHON_TOOL` |
-| 3 | `src/assignment/agent/chess_tools.py` | `_play_move`, `_simulate_move`, `_run_python`, `_invoke_skill` |
-| 3 | `src/assignment/agent/chess_agent.py` | register the enabled tools and implement `ChessAgent.execute_tool_calls` |
-| 3 | `src/assignment/agent/base.py` | `Agent.load_skills` |
-
-Do not modify provided infrastructure merely to make a test pass. In
-particular, keep the logging and cleanup block in `Agent.run`,
-`execute_python_code`, the sandbox runner, task files, tests, and pinned chess
-applications unchanged. -->
-
-<!-- ## What is provided
-
-- A Modal-backed command environment in `src/assignment/env.py`.
-- Pinned chess sources in the `chess_app/` submodule.
-- A public chess task and vendored SWE-bench instances under `tasks/`.
-- The coding-agent `execute` and `finish_task` schemas and their environment.
-- The chess server endpoints, state formatter, prompts, sandbox Python runner,
-  and a chess search skill.
-- Offline public tests, opt-in billable Modal tests, and artifact-producing CLI
-  runners.
-
-The task builder checks the pinned source commit, removes Git history when it copies a target into Modal, and creates a fresh one-commit repository at `/testbed`. The coding agent can inspect and edit that working tree, but cannot recover a solution from repository history. -->
-
 ## Setup
 
 Install [uv](https://docs.astral.sh/uv/), then run:
@@ -108,12 +71,6 @@ to check that whether you have a billable Modal sandbox running. If the environm
 ## Public tests
 
 `make test` is fast, offline, and not billable. The starter intentionally fails tests for student TODOs. Use these milestones as a guide; exact pytest counts may change if clarifying tests are added.
-<!-- | After completing | Public behavior that should pass |
-|---|---|
-| Part 1 loop and dispatcher | prompt history, truncation, step limit, malformed/unknown tools, patch submission |
-| Part 2 compaction | summary call, valid retained tool pair, smaller active prompt, saved compaction event |
-| Part 3 basic chess tool | strict schema, registration, state update, recoverable invalid moves |
-| Part 3 programmatic tools and skills | simulation isolation, sandbox Python execution, state refresh, skill loading | -->
 
 Passing public tests is not proof of full correctness. Private tests also cover cleanup on failure, duplicate/malformed skills, parallel chess calls, transport errors, artifact consistency, patch replay, and real Modal integration.
 
