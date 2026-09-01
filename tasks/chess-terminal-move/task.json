@@ -1,7 +1,7 @@
 {
   "id": "chess-terminal-move",
   "repo": "https://github.com/cmu-agents/chess-app",
-  "base_commit": "2e82fff6c6ecff5fd81408dd4baa8364fc5afbe8",
+  "base_commit": "4aaabca1194ef5f175ccae4fecf902bc71cc303b",
   "source": "../../chess_app",
   "dockerfile": "Dockerfile",
   "problem_statement": "problem_statement.md",
