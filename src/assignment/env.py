@@ -1,4 +1,5 @@
 import asyncio
+import posixpath
 import time
 from pathlib import PurePath
 from typing import Any
@@ -109,6 +110,7 @@ class Environment:
         deployment_timeout: float = 600,
         install_pipx: bool = True,
         modal_sandbox_kwargs: dict[str, Any] | None = None,
+        conda_env: str | None = None,
     ):
         """Launch a Modal sandbox and block until its runtime answers.
 
@@ -127,8 +129,15 @@ class Environment:
             modal_sandbox_kwargs: Additional keyword arguments forwarded to
                 ``modal.Sandbox.create``. This is used for capabilities such as
                 encrypted port forwarding.
+            conda_env: Name of a conda environment to put on PATH for every
+                command. SWE-bench images install the repository under test into
+                an environment named ``testbed`` but never activate it, so
+                without this ``python`` is conda's base environment, where the
+                repository and its dependencies are not installed.
         """
         self.cwd = cwd
+        # Merged into every command's environment; a per-call `env` wins.
+        self.env_defaults: dict[str, str] = {}
         self.deployment = AssignmentModalDeployment(
             image=image,
             startup_timeout=startup_timeout,
@@ -144,11 +153,50 @@ class Environment:
 
         asyncio.run(_start())
 
+        if conda_env:
+            self.activate_conda_env(conda_env)
+
         # Read the platform from inside the container, not from platform.uname(),
         # which would describe the machine running this code instead.
         self.system, self.release, self.version, self.machine = self.execute(
             "uname -s; uname -r; uname -v; uname -m"
         )["output"].splitlines()
+
+    def is_alive(self) -> bool:
+        """Whether the sandbox is still running.
+
+        Modal reclaims a sandbox once `deployment_timeout` elapses, and the
+        deployment keeps its handle afterwards, so this asks the sandbox itself
+        rather than trusting the handle's existence.
+        """
+        sandbox = self.deployment._sandbox
+        return sandbox is not None and sandbox.poll() is None
+
+    def activate_conda_env(self, name: str, root: str = "/opt/miniconda3") -> str:
+        """Put a conda environment's bin directory first on PATH for all commands.
+
+        Activating properly needs a login shell, which these commands do not
+        get. Prepending the environment's bin directory has the same effect for
+        ``python``, ``pip``, and anything else installed there.
+
+        Args:
+            name: The environment name, for example ``testbed``.
+            root: Where conda is installed in the image.
+
+        Returns:
+            The PATH now used for every command.
+
+        Raises:
+            FileNotFoundError: If the environment is not in the image, rather
+                than silently leaving the wrong interpreter on PATH.
+        """
+        binary_dir = posixpath.join(root, "envs", name, "bin")
+        if self.execute(f"test -d {binary_dir}", cwd="/")["returncode"] != 0:
+            raise FileNotFoundError(f"No conda environment at {binary_dir}")
+
+        current = self.execute("printenv PATH", cwd="/")["output"].strip()
+        self.env_defaults["PATH"] = f"{binary_dir}:{current}"
+        return self.env_defaults["PATH"]
 
     def execute(
         self,
@@ -191,7 +239,7 @@ class Environment:
         arguments = {
             "command": command,
             "timeout": timeout,
-            "env": env,
+            "env": {**self.env_defaults, **(env or {})} or None,
             "shell": shell,
             "check": check,
             "merge_output_streams": False,
@@ -215,6 +263,15 @@ class Environment:
             if result.stderr:
                 output["output"] += result.stderr
         except Exception as e:
+            # A command can fail for reasons worth reporting to the model, but a
+            # sandbox that is gone is terminal: every later command fails the
+            # same way, so raise rather than let the caller keep going.
+            if not self.is_alive():
+                raise RuntimeError(
+                    "The sandbox is no longer running, so no further commands can "
+                    f"be executed. Last error: {e}"
+                ) from e
+
             # NOTE(source): https://github.com/SWE-agent/mini-swe-agent/blob/a83fcae82d2a08f0ee0c688f9d137b3566c097f8/src/minisweagent/environments/extra/swerex_modal.py#L82-L87
             # Same keys as the success path, so callers never have to branch on
             # which one they got.
