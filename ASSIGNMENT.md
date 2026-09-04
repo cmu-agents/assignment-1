@@ -299,7 +299,9 @@ Return the runner's JSON string with `stdout`, `stderr`, and `error`. A non-zero
 Enable these tools with:
 
 ```bash
-uv run assignment-play-chess --programmatic-tools
+uv run assignment-play-chess \
+  --patch artifacts/fix.patch \
+  --programmatic-tools
 ```
 
 Once you have implemented this, your agent should be able to produce a piece of code that selects a move, and play that move in the game. You may still find that your chess playing agent does not use the tools at its disposal to play good moves, and ends up directly using `play_move` to act often. To give it more structure and strategy, we turn again to the idea of a skill that we explored earlier.
@@ -314,6 +316,7 @@ when skills were loaded, and return the named full content.
 
 ```bash
 uv run assignment-play-chess \
+  --patch artifacts/fix.patch \
   --programmatic-tools \
   --skills-path tasks/chess-skills \
   --trajectory artifacts/part3-python-skill-trajectory.json
