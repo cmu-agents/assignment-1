@@ -64,7 +64,7 @@ make test-chess-modal
 
 As a general tip, you can use
 ```bash
-modal container list
+uv run modal container list
 ```
 to check that whether you have a billable Modal sandbox running. If the environment incorrectly shuts down, the sandbox may be left running and use up credits. You can use `modal container stop <container ID>` to stop a sandbox that was not correctly terminated.
 
